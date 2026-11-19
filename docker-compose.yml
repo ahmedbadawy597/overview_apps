@@ -1,0 +1,22 @@
+services:
+  overview-frontend:
+    build:
+      context: .
+      args:
+        VITE_API_MODE: nest
+        VITE_API_BASE_URL: /v1
+    image: overview-frontend:latest
+    container_name: overview-frontend
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: overview.strategizeit.us
+      VIRTUAL_PORT: "80"
+      LETSENCRYPT_HOST: overview.strategizeit.us
+      LETSENCRYPT_EMAIL: itstr369@gmail.com
+    networks:
+      - ecm-net
+
+networks:
+  ecm-net:
+    name: ecm_ecm-net
+    external: true
