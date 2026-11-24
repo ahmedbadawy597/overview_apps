@@ -173,7 +173,7 @@ export const appsApi = {
           statusLabel: input.statusLabel,
           usersCount: input.usersCount,
           operationalReadinessPercent: input.operationalReadinessPercent ?? 0,
-          isFeatured: input.isFeatured ?? false,
+          ...(input.isFeatured !== undefined ? { isFeatured: input.isFeatured } : {}),
           sortOrder: input.sortOrder ?? 0,
           publishNow: input.publishNow ?? false,
         },
@@ -197,7 +197,7 @@ export const appsApi = {
           statusLabel: input.statusLabel,
           usersCount: input.usersCount,
           operationalReadinessPercent: input.operationalReadinessPercent ?? 0,
-          isFeatured: input.isFeatured ?? false,
+          ...(input.isFeatured !== undefined ? { isFeatured: input.isFeatured } : {}),
           sortOrder: input.sortOrder ?? 0,
         },
       })

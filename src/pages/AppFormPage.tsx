@@ -8,7 +8,6 @@ import { ErrorState } from "@/components/common/ErrorState"
 import { PermissionEmpty } from "@/components/common/PermissionEmpty"
 import { PageHeader, Panel } from "@/components/layout/PageHeader"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,9 +37,7 @@ interface Draft {
   statusLabel: AppStatusLabel
   usersCount: string
   operationalReadinessPercent: string
-  isFeatured: boolean
   sortOrder: string
-  publishNow: boolean
 }
 
 type FormErrorKey = keyof Draft | "interfaces" | "form"
@@ -54,13 +51,11 @@ const EMPTY: Draft = {
   statusLabel: "جديد",
   usersCount: "0",
   operationalReadinessPercent: "0",
-  isFeatured: false,
   sortOrder: "0",
-  publishNow: false,
 }
 
 export function AppFormPage() {
-  const { canManageApps, canPublishApps } = useAuth()
+  const { canManageApps } = useAuth()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const isEdit = Boolean(id)
@@ -87,9 +82,7 @@ export function AppFormPage() {
       statusLabel: app.statusLabel,
       usersCount: String(app.usersCount),
       operationalReadinessPercent: String(app.operationalReadinessPercent),
-      isFeatured: app.isFeatured,
       sortOrder: String(app.sortOrder),
-      publishNow: false,
     })
   }, [appQuery.data])
 
@@ -233,7 +226,6 @@ export function AppFormPage() {
       statusLabel: draft.statusLabel,
       usersCount,
       operationalReadinessPercent,
-      isFeatured: draft.isFeatured,
       sortOrder,
     }
 
@@ -254,7 +246,7 @@ export function AppFormPage() {
 
     const result = await create.mutateAsync({
       ...payload,
-      publishNow: canPublishApps && draft.publishNow,
+      publishNow: false,
     })
     if (!result.ok) {
       applyApiFailure(result)
@@ -517,17 +509,6 @@ export function AppFormPage() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-[13px] font-medium text-foreground">
-              <Checkbox checked={draft.isFeatured} onCheckedChange={(v) => set("isFeatured", v === true)} />
-              إظهار كتطبيق مميز في واجهة الوزير
-            </label>
-
-            {!isEdit && canPublishApps && (
-              <label className="flex items-center gap-2 text-[13px] font-medium text-foreground">
-                <Checkbox checked={draft.publishNow} onCheckedChange={(v) => set("publishNow", v === true)} />
-                نشر التطبيق فور الحفظ على لوحة الوزير
-              </label>
-            )}
           </section>
 
           <AppInterfacesEditor value={interfaces} onChange={setInterfaces} disabled={saving} />
@@ -539,7 +520,7 @@ export function AppFormPage() {
             </Button>
             <Button type="submit" disabled={saving}>
               {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Save aria-hidden />}
-              {isEdit ? "حفظ التعديلات" : draft.publishNow ? "حفظ ونشر" : "حفظ التطبيق"}
+              {isEdit ? "حفظ التعديلات" : "حفظ التطبيق"}
             </Button>
           </div>
         </form>
