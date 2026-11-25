@@ -43,7 +43,6 @@ import {
   useAppsWorkspaceSummary,
   useDeleteApp,
   usePublishApp,
-  useUnpublishApp,
 } from "@/hooks/useApps"
 import { formatNumber, formatPercent } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -93,7 +92,6 @@ function AppCard({
   canManage,
   canPublish,
   onPublish,
-  onUnpublish,
   onDelete,
   onOpenCredentials,
 }: {
@@ -102,7 +100,6 @@ function AppCard({
   canManage: boolean
   canPublish: boolean
   onPublish: () => void
-  onUnpublish: () => void
   onDelete: () => void
   onOpenCredentials: () => void
 }) {
@@ -182,16 +179,11 @@ function AppCard({
                 تعديل
               </Link>
             </Button>
-            {canPublish &&
-              (app.publishStatus === "published" ? (
-                <Button size="sm" variant="ghost" className="h-8" disabled={busy} onClick={onUnpublish}>
-                  إلغاء النشر
-                </Button>
-              ) : (
-                <Button size="sm" className="h-8" disabled={busy} onClick={onPublish}>
-                  نشر
-                </Button>
-              ))}
+            {canPublish && app.publishStatus !== "published" && (
+              <Button size="sm" className="h-8" disabled={busy} onClick={onPublish}>
+                نشر
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
@@ -227,7 +219,6 @@ export function AppsPage() {
   const listQuery = useAppsList(query, canViewApps)
   const summaryQuery = useAppsWorkspaceSummary(canViewApps)
   const publish = usePublishApp()
-  const unpublish = useUnpublishApp()
   const remove = useDeleteApp()
 
   if (!canViewApps) {
@@ -236,7 +227,7 @@ export function AppsPage() {
 
   const apps = listQuery.data?.items ?? []
   const summary = summaryQuery.data
-  const busy = publish.isPending || unpublish.isPending || remove.isPending
+  const busy = publish.isPending || remove.isPending
   const statsLoading = summaryQuery.isLoading
 
   return (
@@ -427,7 +418,6 @@ export function AppsPage() {
                   canManage={canManageApps}
                   canPublish={canPublishApps}
                   onPublish={() => publish.mutate(app.id)}
-                  onUnpublish={() => unpublish.mutate(app.id)}
                   onOpenCredentials={() => setCredentialsApp(app)}
                   onDelete={() => {
                     if (!window.confirm(`حذف التطبيق «${app.name}»؟`)) return
