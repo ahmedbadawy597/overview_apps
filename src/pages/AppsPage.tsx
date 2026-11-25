@@ -42,7 +42,6 @@ import {
   useAppsList,
   useAppsWorkspaceSummary,
   useDeleteApp,
-  usePublishApp,
 } from "@/hooks/useApps"
 import { formatNumber, formatPercent } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -90,16 +89,12 @@ function AppCard({
   app,
   busy,
   canManage,
-  canPublish,
-  onPublish,
   onDelete,
   onOpenCredentials,
 }: {
   app: WorkspaceApp
   busy: boolean
   canManage: boolean
-  canPublish: boolean
-  onPublish: () => void
   onDelete: () => void
   onOpenCredentials: () => void
 }) {
@@ -179,11 +174,6 @@ function AppCard({
                 تعديل
               </Link>
             </Button>
-            {canPublish && app.publishStatus !== "published" && (
-              <Button size="sm" className="h-8" disabled={busy} onClick={onPublish}>
-                نشر
-              </Button>
-            )}
             <Button
               size="sm"
               variant="ghost"
@@ -202,7 +192,7 @@ function AppCard({
 }
 
 export function AppsPage() {
-  const { canViewApps, canManageApps, canPublishApps } = useAuth()
+  const { canViewApps, canManageApps } = useAuth()
   const [q, setQ] = useState("")
   /** Active lifecycle filters only — archive is not a supported UI workflow. */
   const [status, setStatus] = useState<"all" | "published" | "draft">("all")
@@ -218,7 +208,6 @@ export function AppsPage() {
   )
   const listQuery = useAppsList(query, canViewApps)
   const summaryQuery = useAppsWorkspaceSummary(canViewApps)
-  const publish = usePublishApp()
   const remove = useDeleteApp()
 
   if (!canViewApps) {
@@ -227,7 +216,7 @@ export function AppsPage() {
 
   const apps = listQuery.data?.items ?? []
   const summary = summaryQuery.data
-  const busy = publish.isPending || remove.isPending
+  const busy = remove.isPending
   const statsLoading = summaryQuery.isLoading
 
   return (
@@ -416,8 +405,6 @@ export function AppsPage() {
                   app={app}
                   busy={busy}
                   canManage={canManageApps}
-                  canPublish={canPublishApps}
-                  onPublish={() => publish.mutate(app.id)}
                   onOpenCredentials={() => setCredentialsApp(app)}
                   onDelete={() => {
                     if (!window.confirm(`حذف التطبيق «${app.name}»؟`)) return
