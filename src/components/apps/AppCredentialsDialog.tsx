@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { openWithCredentials } from "@/lib/openWithCredentials"
 import { useAppInterfaces } from "@/hooks/useApps"
 
 interface AppCredentialsDialogProps {
@@ -47,11 +48,21 @@ export function AppCredentialsDialog({ appId, appName, open, onOpenChange }: App
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold text-foreground">{row.label}</p>
                   {row.url && (
-                    <Button asChild size="sm" variant="outline" className="h-8">
-                      <a href={row.url} target="_blank" rel="noreferrer">
-                        <ExternalLink className="size-3.5" aria-hidden />
-                        فتح
-                      </a>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8"
+                      onClick={() => {
+                        void openWithCredentials({
+                          url: row.url!,
+                          username: row.username,
+                          password: row.password,
+                        }).then(() => onOpenChange(false))
+                      }}
+                    >
+                      <ExternalLink className="size-3.5" aria-hidden />
+                      فتح
                     </Button>
                   )}
                 </div>
